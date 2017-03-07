@@ -1,5 +1,4 @@
 from csv import DictReader
-import io
 
 class DataSet():
     def __init__(self, path="fnc-1"):
