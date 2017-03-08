@@ -196,7 +196,7 @@ def hand_features(headlines, bodies):
         features = append_ngrams(features, clean_headline, clean_body, 3)
         features = append_ngrams(features, clean_headline, clean_body, 4)
         features = append_ngrams(features, clean_headline, clean_body, 5)
-        features = append_ngrams(features, clean_headline, clean_body, 6)
+        features = append_ngrams(features, clean_headline, clean_body, 6) # Ridiculous?
         return features
 
     X = []

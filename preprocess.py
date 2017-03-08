@@ -10,7 +10,7 @@ from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.nn import generate_ff_features
 
 MAX_NB_WORDS = None
-MAX_SEQUENCE_LENGTH = 200
+MAX_SEQUENCE_LENGTH = 1000
 GLOVE_DIR = './wordvectors'
 EMBEDDING_DIM = 100
 
