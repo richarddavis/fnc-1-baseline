@@ -1,13 +1,22 @@
 import os
 import numpy as np
 
+from sklearn.preprocessing import LabelEncoder
+from sklearn.cross_validation import train_test_split
+
 from keras.layers import Embedding
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+from keras.utils import np_utils
+from keras.models import Sequential
+from keras.layers import Activation
+from keras.optimizers import SGD
+from keras.layers import Dense
 
 from utils.dataset import DataSet
 from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.nn import generate_ff_features
+from utils.score import report_score, LABELS
 
 MAX_NB_WORDS = None
 MAX_SEQUENCE_LENGTH = 1000
@@ -90,11 +99,74 @@ hold_out_ids = read_ids("hold_out_ids.txt", base_dir)
 X, y = generate_ff_features(training_ids, d, embedding_matrix, tokenizer, EMBEDDING_DIM)
 
 # ----------------------------------------------------
-# Part 5: Create the embedding layer
+# Part 5: Encode the labels, convert from ints to one-hot vectors
 # ----------------------------------------------------
 
-embedding_layer = Embedding(len(word_index) + 1,
-                            EMBEDDING_DIM,
-                            weights=[embedding_matrix],
-                            input_length=MAX_SEQUENCE_LENGTH,
-                            trainable=False)
+# le = LabelEncoder()
+# labels = le.fit_transform(y)
+
+# Transform the labels into vectors in the range [0, num_classes].
+# This generates a vector for each label where the index of the label
+# is set to `1` and all other entries to `0`
+
+labels = np_utils.to_categorical(y)
+
+# ----------------------------------------------------
+# Part 6: Use sklearn to split into train and test sets
+# ----------------------------------------------------
+
+# partition the data into training and testing splits, using 75%
+# of the data for training and the remaining 25% for testing
+print("[INFO] constructing training/testing split...")
+(trainData, testData, trainLabels, testLabels) = train_test_split(
+	X, labels, test_size=0.25, random_state=42)
+
+# ----------------------------------------------------
+# Part 7: Create the model!
+# ----------------------------------------------------
+
+# define the architecture of the network
+model = Sequential()
+model.add(Dense(200, input_dim=EMBEDDING_DIM*2, init="one",
+	activation="relu"))
+# model.add(Dense(384, init="uniform", activation="relu"))
+model.add(Dense(4))
+model.add(Activation("softmax"))
+
+# ----------------------------------------------------
+# Part 8: Train the Model
+# ----------------------------------------------------
+
+print("[INFO] compiling model...")
+sgd = SGD(lr=0.01)
+model.compile(loss="categorical_crossentropy", optimizer=sgd,
+	metrics=["accuracy"])
+model.fit(trainData, trainLabels, nb_epoch=10, batch_size=128,
+	verbose=1)
+
+# ----------------------------------------------------
+# Part 9: Show accuracy on the test set
+# ----------------------------------------------------
+
+# show the accuracy on the testing set
+print("[INFO] evaluating on testing set...")
+(loss, accuracy) = model.evaluate(testData, testLabels,
+	batch_size=128, verbose=1)
+print("[INFO] loss={:.4f}, accuracy: {:.4f}%".format(loss,
+	accuracy * 100))
+
+# Use the provided functionality to determine the confusion matrix and accuracy
+predicted = model.predict(testData)
+print(predicted)
+report_score([LABELS[np.where(x==1)[0][0]] for x in testLabels],
+             [LABELS[np.argmax(x)] for x in predicted])
+
+# ----------------------------------------------------
+# Create the embedding layer
+# ----------------------------------------------------
+
+# embedding_layer = Embedding(len(word_index) + 1,
+#                             EMBEDDING_DIM,
+#                             weights=[embedding_matrix],
+#                             input_length=MAX_SEQUENCE_LENGTH,
+#                             trainable=False)
