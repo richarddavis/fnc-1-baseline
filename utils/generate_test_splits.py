@@ -5,7 +5,7 @@ from collections import defaultdict
 
 def generate_hold_out_split (dataset, training = 0.8, base_dir="splits"):
     r = random.Random()
-    r.seed(1489215)
+    # r.seed(1489215)
 
     article_ids = list(dataset.articles.keys())  # get a list of article ids
     r.shuffle(article_ids)  # and shuffle that list

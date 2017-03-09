@@ -10,7 +10,8 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import np_utils
 from keras.models import Sequential
 from keras.layers import Activation
-from keras.optimizers import SGD
+from keras.layers.core import Dropout
+from keras.optimizers import SGD, Adam, Adadelta, Adagrad, RMSprop, Nadam
 from keras.layers import Dense
 
 from utils.dataset import DataSet
@@ -77,6 +78,7 @@ for word, i in word_index.items():
         # words not found in embedding index will be all-zeros.
         embedding_matrix[i] = embedding_vector
 
+
 # ----------------------------------------------------
 # Part 4: Create the training and test data
 # ----------------------------------------------------
@@ -127,9 +129,9 @@ print("[INFO] constructing training/testing split...")
 
 # define the architecture of the network
 model = Sequential()
-model.add(Dense(200, input_dim=EMBEDDING_DIM*2, init="one",
+model.add(Dense(100, input_dim=EMBEDDING_DIM*2, init="glorot_normal",
 	activation="relu"))
-# model.add(Dense(384, init="uniform", activation="relu"))
+model.add(Dropout(0.5))
 model.add(Dense(4))
 model.add(Activation("softmax"))
 
@@ -138,10 +140,14 @@ model.add(Activation("softmax"))
 # ----------------------------------------------------
 
 print("[INFO] compiling model...")
-sgd = SGD(lr=0.01)
-model.compile(loss="categorical_crossentropy", optimizer=sgd,
+sgd = SGD(lr=0.000001)
+nadam = Nadam()
+adam = Adam(lr=0.00001)
+# model.compile(loss="categorical_crossentropy", optimizer=adam,
+# 	metrics=["categorical_accuracy"])
+model.compile(loss="binary_crossentropy", optimizer=adam,
 	metrics=["accuracy"])
-model.fit(trainData, trainLabels, nb_epoch=10, batch_size=128,
+model.fit(trainData, trainLabels, nb_epoch=20, batch_size=32,
 	verbose=1)
 
 # ----------------------------------------------------
@@ -157,7 +163,6 @@ print("[INFO] loss={:.4f}, accuracy: {:.4f}%".format(loss,
 
 # Use the provided functionality to determine the confusion matrix and accuracy
 predicted = model.predict(testData)
-print(predicted)
 report_score([LABELS[np.where(x==1)[0][0]] for x in testLabels],
              [LABELS[np.argmax(x)] for x in predicted])
 

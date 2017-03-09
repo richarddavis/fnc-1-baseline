@@ -23,6 +23,22 @@ def generate_ff_features(ids, dataset, embedding_matrix, tokenizer, EMBEDDING_DI
 
     return X,y
 
+def generate_ff_features_twitter(raw, embedding_matrix, tokenizer, EMBEDDING_DIM):
+    feature_file = os.path.join(os.path.abspath('./twitter/features'), "summed_words.npy")
+    features = check_if_features_exist(feature_file)
+    if features is not None:
+        return features
+    X = np.zeros((len(raw), EMBEDDING_DIM))
+    for i, body in tqdm(enumerate(raw)):
+        clean_body = tokenizer.texts_to_sequences(body)
+        body_embedding = np.zeros((1, EMBEDDING_DIM))
+        for token_id in clean_body:
+            if token_id:
+                body_embedding += embedding_matrix[token_id[0],:]
+        X[i,:] = (body_embedding/len(clean_body))
+    np.save(feature_file, X)
+    return X
+
 def get_stances_from_ids(dataset, ids):
     stances = []
     for stance in dataset.stances:
