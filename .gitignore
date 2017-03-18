@@ -3,4 +3,7 @@ features/*.npy
 *.pyc
 .DS_Store
 .idea
+wordvectors/*
+*.swp
+*.swo
 __pycache__
