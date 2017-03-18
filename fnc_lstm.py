@@ -1,7 +1,7 @@
 import numpy as np
 from keras.datasets import imdb
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Embedding, Flatten, LSTM
+from keras.layers import Dense, Activation, Embedding, Flatten, LSTM, GRU
 from keras.layers.core import Dropout
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
@@ -13,6 +13,7 @@ from utils.generate_data import generate_data
 from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
+from keras.utils.visualize_util import plot
 from keras.engine.topology import Merge
 
 MAX_NB_WORDS = 5000
@@ -64,6 +65,9 @@ X_body = sequence.pad_sequences(body_sequences, maxlen=max_words)
 X_headline_test = sequence.pad_sequences(headline_sequences_test, maxlen=max_words)
 X_body_test = sequence.pad_sequences(body_sequences_test, maxlen=max_words)
 
+print(X_headline[0])
+print(X_body[0])
+
 print('X_headline shape:', X_headline.shape)
 print('X_body shape:', X_body.shape)
 print('X_headline_test shape:', X_headline_test.shape)
@@ -74,18 +78,18 @@ y_test = np_utils.to_categorical(y_test)
 
 print('Build model...')
 headline_branch = Sequential()
-headline_branch.add(Embedding(MAX_NB_WORDS, 128, dropout=0.2))
-headline_branch.add(LSTM(128, dropout_W=0.2, dropout_U=0.2))  # try using a GRU instead, for fun
+headline_branch.add(Embedding(input_dim=MAX_NB_WORDS+2, output_dim=32, input_length=max_words, mask_zero=True))
+headline_branch.add(GRU(output_dim=64))  # try using a GRU instead, for fun
 
 body_branch = Sequential()
-body_branch.add(Embedding(MAX_NB_WORDS, 128, dropout=0.2))
-body_branch.add(LSTM(128, dropout_W=0.2, dropout_U=0.2))  # try using a GRU instead, for fun
+body_branch.add(Embedding(input_dim=MAX_NB_WORDS+2, output_dim=32, input_length=max_words, mask_zero=True))
+body_branch.add(GRU(output_dim=64))  # try using a GRU instead, for fun
 
-merged = Merge([headline_branch, body_branch], mode='concat')
+merged = Merge([headline_branch, body_branch], mode='sum')
 
 model = Sequential()
 model.add(merged)
-model.add(Dense(200, activation='relu', W_regularizer=l2(0.001), init="glorot_normal"))
+model.add(Dense(400, activation='relu', init="glorot_normal"))
 model.add(Dropout(0.2))
 model.add(Dense(4))
 model.add(Activation('softmax'))
@@ -96,9 +100,10 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 print(model.summary())
+plot(model, to_file='fnc_lstm.png', show_shapes=True)
 
 print('Train...')
-model.fit([X_headline, X_body], y, nb_epoch=5, batch_size=batch_size, verbose=1)
+model.fit([X_headline, X_body], y, validation_data=([X_headline_test, X_body_test], y_test), nb_epoch=4, batch_size=batch_size, verbose=1)
 # model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=15,
 #           validation_data=(X_test, y_test))
 # score, acc = model.evaluate(X_test, y_test,

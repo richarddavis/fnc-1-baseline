@@ -16,6 +16,7 @@ from utils.generate_data import generate_data
 from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
+from keras.utils.visualize_util import plot
 from keras.engine.topology import Merge
 
 GLOVE_DIR = './wordvectors'
@@ -106,6 +107,7 @@ model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['accuracy'])
 print(model.summary())
+plot(model, to_file='ff_concat_input_pretrained.png', show_shapes=True)
 model.fit([X_headline, X_body], y, nb_epoch=5, batch_size=64)
 
 # # create the model

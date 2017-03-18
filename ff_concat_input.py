@@ -15,6 +15,7 @@ from utils.generate_data import generate_data
 from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
+from keras.utils.visualize_util import plot
 from keras.engine.topology import Merge
 
 MAX_NB_WORDS = 10000
@@ -80,6 +81,7 @@ model.add(Dropout(0.5))
 model.add(Dense(4, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='nadam', metrics=['accuracy'])
 print(model.summary())
+plot(model, to_file='ff_concat_input.png', show_shapes=True)
 
 # Fit the model
 # model.fit(X_train, y_train, validation_data=(X_test, y_test), nb_epoch=2, batch_size=128, verbose=1)
