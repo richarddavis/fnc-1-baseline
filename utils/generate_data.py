@@ -4,6 +4,8 @@ from tqdm import tqdm
 
 from utils.score import LABELS
 
+UNRELATED = 3
+
 def generate_data(ids, dataset):
     X_headline, X_body, y = [], [], []
 
@@ -22,3 +24,7 @@ def get_stances_from_ids(dataset, ids):
         if stance['Body ID'] in ids:
             stances.append(stance)
     return stances
+
+def collapse_stances(labels):
+    "['agree', 'disagree', 'discuss', 'unrelated'] => ['unrelated','related']"
+    return [ 0 if label == UNRELATED else 1 for label in labels]

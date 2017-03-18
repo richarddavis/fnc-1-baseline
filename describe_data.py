@@ -18,20 +18,28 @@ print("{} bodies. Body lengths: token mean={} std={}, char mean={}, std={}".form
     len(bodies), np.mean(btl), np.std(btl), np.mean(bl), np.std(bl))
 )
 
+htl = [len(s['Headline']) for s in stances]
 hpa = Counter(s['Body ID'] for s in stances)
 
 print("{} headlines".format(len(stances)))
 
 plt.hist(btl, 50)
-plt.title("Article bodies, by token")
+plt.title("Article body lengths, by token")
 plt.xlabel('Article body lengths')
 plt.ylabel('Frequency')
 plt.grid(True)
 plt.show()
 
 plt.hist(bl, 50)
-plt.title("Article bodies, by character")
+plt.title("Article body lengths, by character")
 plt.xlabel('Article body lengths')
+plt.ylabel('Frequency')
+plt.grid(True)
+plt.show()
+
+plt.hist(htl, 50)
+plt.title("Headline lengths, by token")
+plt.xlabel('Headline lengths')
 plt.ylabel('Frequency')
 plt.grid(True)
 plt.show()
