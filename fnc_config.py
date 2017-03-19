@@ -29,16 +29,30 @@ class FNCConfig:
         return [conf for conf in cls.get_all() if not conf.is_trained()]
 
     @classmethod
+    def get_trained(cls, results_dir="./results"):
+        return [conf for conf in cls.get_all() if conf.is_trained()]
+
+    @classmethod
     def load_file(cls, filename):
         "Given a file path, return a FNCConfig"
         with open(filename, 'r') as source:
             data = json.load(source)
             config = FNCConfig(data['config'])
-            config.params = data['params']
-            config.history = data['history']
+            config.params = data.get('params')
+            config.history = data.get('history')
             config.bound_slug = os.path.splitext(os.path.basename(filename))[0]
             return config
-        
+
+    @classmethod
+    def show_all(cls, metric="val_loss", results_dir="./results"):
+        # TODO also show other desirable metrics
+        print("Showing results sorted by {}".format(metric))
+        by_metric = lambda c: c.best_epoch_metrics(metric=metric).get(metric, 0)
+        for conf in sorted(cls.get_trained(results_dir), key=by_metric):
+            metrics = conf.best_epoch_metrics(metric=metric)
+            print("{}\t{}\t{}".format(conf.slug(), conf.get('config_name'), 
+                    metrics.get(metric, 0)))
+      
     def __init__(self, params, results_dir="./results"):
         self.results_dir = results_dir
         self.__dict__.update(params)
@@ -52,17 +66,28 @@ class FNCConfig:
     def save(self, model=None, history=None):
         filename = self.config_file()
         with open(filename, 'w') as destination:
-            json.dump({
+            output = {
                 "config": self.__dict__,
-                "params": history.params,
-                "history": history.history
-            }, destination)
-        self.params = history.params
-        self.history = history.history
-        config.bound_slug = os.path.splitext(os.path.basename(filename))[0]
+            }
+            if history:
+                output['params'] = history.params
+                output['history'] = history.history
+                self.params = history.params
+                self.history = history.history
+            json.dump(output, destination)
+        self.bound_slug = os.path.splitext(os.path.basename(filename))[0]
 
     def is_trained(self):
         return os.path.exists(self.weights_file())
+
+    def best_epoch(self, metric="val_loss"):
+        scores = getattr(self, 'history', {}).get(metric, [])
+        return max((score, i) for i, score in enumerate(scores))[1]
+    
+    def best_epoch_metrics(self, metric="val_loss"):
+        be = self.best_epoch()
+        history = getattr(self, 'history', {})
+        return {k: vals[be] for k, vals in history.items()}
 
     def get_model(self):
         try: 
@@ -101,3 +126,4 @@ class FNCConfig:
 
     def get(self, *args):
         return self.__dict__.get(*args)
+
