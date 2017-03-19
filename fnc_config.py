@@ -47,9 +47,9 @@ class FNCConfig:
     def show_all(cls, metric="val_loss", results_dir="./results"):
         # TODO also show other desirable metrics
         print("Showing results sorted by {}".format(metric))
-        by_metric = lambda c: c.best_epoch_metrics(metric=metric).get(metric, 0)
+        by_metric = lambda c: (c.best_epoch_metrics(metric=metric) or {}).get(metric, 0)
         for conf in sorted(cls.get_trained(results_dir), key=by_metric):
-            metrics = conf.best_epoch_metrics(metric=metric)
+            metrics = (conf.best_epoch_metrics(metric=metric) or {})
             print("{}\t{}\t{}".format(conf.slug(), conf.get('config_name'), 
                     metrics.get(metric, 0)))
       
@@ -81,13 +81,15 @@ class FNCConfig:
         return os.path.exists(self.weights_file())
 
     def best_epoch(self, metric="val_loss"):
-        scores = getattr(self, 'history', {}).get(metric, [])
-        return max((score, i) for i, score in enumerate(scores))[1]
+        scores = (getattr(self, 'history') or {}).get(metric, [])
+        if any(scores):
+            return max((score, i) for i, score in enumerate(scores))[1]
     
     def best_epoch_metrics(self, metric="val_loss"):
         be = self.best_epoch()
-        history = getattr(self, 'history', {})
-        return {k: vals[be] for k, vals in history.items()}
+        if be:
+            history = (getattr(self, 'history') or {})
+            return {k: vals[be] for k, vals in history.items()}
 
     def get_model(self):
         try: 
