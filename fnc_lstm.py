@@ -1,7 +1,7 @@
 import numpy as np
 from keras.datasets import imdb
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Embedding, Flatten, LSTM, GRU
+from keras.models import Sequential, Model
+from keras.layers import Input, Dense, Activation, Embedding, Flatten, LSTM, GRU, concatenate
 from keras.layers.core import Dropout
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
@@ -13,19 +13,21 @@ from utils.generate_data import generate_data
 from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
-from keras.utils.visualize_util import plot
-from keras.engine.topology import Merge
+from keras.utils import plot_model
 
-MAX_NB_WORDS = 5000
-max_words = 100
-batch_size = 64
+MAX_HEADLINE_LENGTH = 100
+MAX_BODY_LENGTH = 1000
+EMBEDDING_DIM = 20
+VOCAB_SIZE = 3000
+BATCH_SIZE = 64
+NUM_EPOCHS = 4
 
 print('Loading data...')
 # Load the dataset using the utility provided by the FNC
 d = DataSet()
 
 # Create Keras tokenizer
-tokenizer = Tokenizer(nb_words=MAX_NB_WORDS)
+tokenizer = Tokenizer(num_words=VOCAB_SIZE)
 
 # Collect all text from bodies and headlines of data provided for FNC
 body_text = [v for k,v in d.articles.items()]
@@ -60,10 +62,10 @@ body_sequences = tokenizer.texts_to_sequences(X_body)
 headline_sequences_test = tokenizer.texts_to_sequences(X_headline_test)
 body_sequences_test = tokenizer.texts_to_sequences(X_body_test)
 
-X_headline = sequence.pad_sequences(headline_sequences, maxlen=max_words)
-X_body = sequence.pad_sequences(body_sequences, maxlen=max_words)
-X_headline_test = sequence.pad_sequences(headline_sequences_test, maxlen=max_words)
-X_body_test = sequence.pad_sequences(body_sequences_test, maxlen=max_words)
+X_headline = sequence.pad_sequences(headline_sequences, maxlen=MAX_HEADLINE_LENGTH)
+X_body = sequence.pad_sequences(body_sequences, maxlen=MAX_BODY_LENGTH)
+X_headline_test = sequence.pad_sequences(headline_sequences_test, maxlen=MAX_HEADLINE_LENGTH)
+X_body_test = sequence.pad_sequences(body_sequences_test, maxlen=MAX_BODY_LENGTH)
 
 print(X_headline[0])
 print(X_body[0])
@@ -77,22 +79,18 @@ y = np_utils.to_categorical(y)
 y_test = np_utils.to_categorical(y_test)
 
 print('Build model...')
-headline_branch = Sequential()
-headline_branch.add(Embedding(input_dim=MAX_NB_WORDS+2, output_dim=32, input_length=max_words, mask_zero=True))
-headline_branch.add(GRU(output_dim=64))  # try using a GRU instead, for fun
+headline_input = Input(shape=(MAX_HEADLINE_LENGTH,), dtype='int32')
+body_input = Input(shape=(MAX_BODY_LENGTH,), dtype='int32')
+headline_branch = Embedding(input_dim=VOCAB_SIZE+2, output_dim=20, input_length=MAX_HEADLINE_LENGTH, mask_zero=True)(headline_input)
+body_branch = Embedding(input_dim=VOCAB_SIZE+2, output_dim=20, input_length=MAX_BODY_LENGTH, mask_zero=True)(body_input)
+headline_branch = GRU(output_dim=128, go_backwards=True)(headline_branch)
+body_branch = GRU(output_dim=128, go_backwards=True)(body_branch)
 
-body_branch = Sequential()
-body_branch.add(Embedding(input_dim=MAX_NB_WORDS+2, output_dim=32, input_length=max_words, mask_zero=True))
-body_branch.add(GRU(output_dim=64))  # try using a GRU instead, for fun
-
-merged = Merge([headline_branch, body_branch], mode='sum')
-
-model = Sequential()
-model.add(merged)
-model.add(Dense(400, activation='relu', init="glorot_normal"))
-model.add(Dropout(0.2))
-model.add(Dense(4))
-model.add(Activation('softmax'))
+merged = concatenate([headline_branch, body_branch])
+merged = Dense(400, activation='relu', init='glorot_normal')(merged)
+merged = Dropout(0.2)(merged)
+out = Dense(4, activation='softmax')(merged)
+model = Model(inputs=[headline_input, body_input], output=out)
 
 # try using different optimizers and different optimizer configs
 model.compile(loss='categorical_crossentropy',
@@ -100,10 +98,10 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 print(model.summary())
-plot(model, to_file='fnc_lstm.png', show_shapes=True)
+plot_model(model, to_file='fnc_lstm.png', show_shapes=True)
 
 print('Train...')
-model.fit([X_headline, X_body], y, validation_data=([X_headline_test, X_body_test], y_test), nb_epoch=4, batch_size=batch_size, verbose=1)
+model.fit([X_headline, X_body], y, validation_data=([X_headline_test, X_body_test], y_test), nb_epoch=NUM_EPOCHS, batch_size=BATCH_SIZE, verbose=1)
 # model.fit(X_train, y_train, batch_size=batch_size, nb_epoch=15,
 #           validation_data=(X_test, y_test))
 # score, acc = model.evaluate(X_test, y_test,

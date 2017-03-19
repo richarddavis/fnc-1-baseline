@@ -1,10 +1,12 @@
 # MLP for the IMDB problem
 import os
 import numpy as np
+import keras
 from keras.datasets import imdb
-from keras.layers import Input, LSTM, Dense, merge, Flatten
+from keras.layers import Input, LSTM, Dense, merge, Flatten, concatenate
 from keras.models import Sequential
 from keras.models import Model
+from keras.layers.merge import Concatenate
 from keras.layers.core import Dropout
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
@@ -16,8 +18,7 @@ from utils.generate_data import generate_data
 from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
-from keras.utils.visualize_util import plot
-from keras.engine.topology import Merge
+from keras.utils import plot_model
 
 GLOVE_DIR = './wordvectors'
 EMBEDDING_DIM = 50
@@ -94,10 +95,12 @@ embedding_layer = Embedding(len(word_index) + 1,
 headline_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
 body_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
 left_branch = embedding_layer(headline_input)
+print (left_branch.shape)
 left_branch = Flatten()(left_branch)
+print (left_branch.shape)
 right_branch = embedding_layer(body_input)
 right_branch = Flatten()(right_branch)
-merged_vector = merge([left_branch, right_branch], mode='concat')
+merged_vector = concatenate([left_branch, right_branch])
 x = Dense(200, activation='relu')(merged_vector)
 x = Dropout(0.5)(x)
 preds = Dense(4, activation='softmax')(x)
@@ -107,7 +110,7 @@ model.compile(loss='categorical_crossentropy',
               optimizer='nadam',
               metrics=['accuracy'])
 print(model.summary())
-plot(model, to_file='ff_concat_input_pretrained.png', show_shapes=True)
+plot_model(model, to_file='ff_concat_input_pretrained.png', show_shapes=True)
 model.fit([X_headline, X_body], y, nb_epoch=5, batch_size=64)
 
 # # create the model
