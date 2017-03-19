@@ -21,7 +21,26 @@ def generate_hold_out_split (dataset, training = 0.8, base_dir="splits"):
     with open(base_dir+ "/"+ "hold_out_ids.txt", "w+") as f:
         f.write("\n".join([str(id) for id in hold_out_ids]))
 
+def generate_training_test_validation_split(dataset, test=0.2, validation=0.15, base_dir="splits"):
+    r = random.Random()
+    r.seed(1489215) # do not change this. 
 
+    article_ids = list(dataset.articles.keys())  # get a list of article ids
+    r.shuffle(article_ids)  # and shuffle that list
+
+    training_ids = article_ids[:int((1 - test - validation) * len(article_ids))]
+    test_ids = article_ids[int((1 - test - validation) * len(article_ids)) : int((1 - validation) * len(article_ids))]
+    validation_ids = article_ids[int((1 - validation) * len(article_ids)):]
+
+    print("Generated split: training: {}, test: {}, validation: {}".format(len(training_ids), len(test_ids), len(validation_ids)))
+
+    # write the split body ids out to files for future use
+    with open(base_dir+ "/"+ "training_ids.txt", "w+") as f:
+        f.write("\n".join([str(id) for id in training_ids]))
+    with open(base_dir+ "/"+ "test_ids.txt", "w+") as f:
+        f.write("\n".join([str(id) for id in test_ids]))
+    with open(base_dir+ "/"+ "validation_ids.txt", "w+") as f:
+        f.write("\n".join([str(id) for id in validation_ids]))
 
 def read_ids(file,base):
     ids = []
