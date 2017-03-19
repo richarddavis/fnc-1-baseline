@@ -92,9 +92,12 @@ merged = Dropout(0.2)(merged)
 out = Dense(4, activation='softmax')(merged)
 model = Model(inputs=[headline_input, body_input], output=out)
 
+def fnc_accuracy(y_true, y_pred):
+    pass
+
 # try using different optimizers and different optimizer configs
 model.compile(loss='categorical_crossentropy',
-              optimizer='adam',
+              optimizer='nadam',
               metrics=['accuracy'])
 
 print(model.summary())
@@ -111,3 +114,4 @@ model.fit([X_headline, X_body], y, validation_data=([X_headline_test, X_body_tes
 predicted = model.predict([X_headline_test, X_body_test])
 report_score([LABELS[np.where(x==1)[0][0]] for x in y_test],
              [LABELS[np.argmax(x)] for x in predicted])
+

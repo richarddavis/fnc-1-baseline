@@ -83,6 +83,7 @@ merged = Dropout(0.6)(merged)
 out = Dense(4, activation='softmax')(merged)
 model = Model(inputs=[left_input, right_input], output=out)
 model.compile(loss='categorical_crossentropy', optimizer='nadam', metrics=['accuracy'])
+
 print(model.summary())
 plot_model(model, to_file='ff_sequence_matrix.png', show_shapes=True)
 
