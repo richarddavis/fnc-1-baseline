@@ -41,7 +41,7 @@ class FNCModel:
         )
         return model, history
 
-    def evaluate(self, X_test, y_test):
+    def evaluate(self, model, X_test, y_test):
         return None
 
     def train(self, X_train, y_train, X_test, y_test):
