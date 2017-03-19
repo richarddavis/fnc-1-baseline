@@ -11,5 +11,12 @@ def generate_configs(base_config, params_to_change, results_dir='./results'):
             FNCConfig(params, results_dir=results_dir).save()
 
 # Example: 
-# from configurations.ff_concat_two_losses import ff_concat_two_losses as base
-# generate_configs(base, {'article_length': [200, 300, 400, 500, 600]})
+if __name__ == '__main__': 
+    from configurations.ff_sequence import ff_sequence as base
+    generate_configs(base, {
+        "vocabulary_dim": [1000, 3000, 5000],
+        "matrix_mode": ["binary", "freq"],
+        "hidden_layers": [
+            [ (600, 'relu', 0.6), (600, 'relu', 0.6)]
+        ]
+    })
