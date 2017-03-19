@@ -1,12 +1,12 @@
 ff_concat_two_losses = {
     "model_module": 'ff_concat_two_losses',
     "model_class": 'FFConcatTwoLosses',
-    "vocabulary_dim": 300,
+    "vocabulary_dim": 3000,
     "pad_sequences": True,
-    "article_length": 50,
-    "headline_length": 10,
-    "article_embedding_dim": 20,
-    "headline_embedding_dim": 20,
+    "article_length": 500,
+    "headline_length": 70,
+    "article_embedding_dim": 200,
+    "headline_embedding_dim": 200,
     "hidden_layers": [       
         (50, 'relu', 0.5),
         (50, 'relu', 0.5),
