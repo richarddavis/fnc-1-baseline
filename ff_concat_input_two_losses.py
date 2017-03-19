@@ -122,9 +122,7 @@ headline_word_vectors = Embedding(
     name='headline_embedding'
 )(headline_input) 
 
-print("BEFORE EMBEDDING")
 print(headline_input.shape)
-print("AFTER EMBEDDING")
 print(headline_word_vectors.shape)
 headline_word_vectors = Flatten()(headline_word_vectors)
 print(headline_word_vectors.shape)
