@@ -26,18 +26,18 @@ class FNCConfig:
 
     @classmethod
     def get_untrained(cls, results_dir="./results"):
-        return [conf for conf in cls.get_all() if not conf.is_trained()]
+        return [conf for conf in cls.get_all(results_dir=results_dir) if not conf.is_trained()]
 
     @classmethod
     def get_trained(cls, results_dir="./results"):
-        return [conf for conf in cls.get_all() if conf.is_trained()]
+        return [conf for conf in cls.get_all(results_dir=results_dir) if conf.is_trained()]
 
     @classmethod
-    def load_file(cls, filename):
+    def load_file(cls, filename, results_dir="./results"):
         "Given a file path, return a FNCConfig"
         with open(filename, 'r') as source:
             data = json.load(source)
-            config = FNCConfig(data['config'])
+            config = FNCConfig(data['config'], results_dir=results_dir)
             config.params = data.get('params')
             config.history = data.get('history')
             config.bound_slug = os.path.splitext(os.path.basename(filename))[0]
