@@ -33,6 +33,8 @@ configs = [FNCConfig.load_file(cf, results_dir=args.dir) for cf in config_files]
 if not args.retrain:
     configs = [c for c in configs if not c.is_trained()]
 
+configs = sorted(configs, key=lambda c: c.run_number())
+
 for conf in configs:
     m = conf.get_model()
     model, history = m.train(
