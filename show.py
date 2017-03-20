@@ -3,6 +3,7 @@ from tabulate import tabulate
 import re
 import csv
 import os
+from pprint import pprint
 
 import argparse
 
@@ -20,7 +21,7 @@ def _parse(string):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--match", '-m', help="String to match test cases against")
-parser.add_argument("--dir", '-d', help="Directory to search for configs",
+parser.add_argument("--dir", help="Directory to search for configs",
         default="./results")
 parser.add_argument('--csv', help="Export as a CSV", action="store_true")
 parser.add_argument('--sort_metric', '-s', default="val_stance_prediction_acc", 
@@ -32,6 +33,8 @@ parser.add_argument('--outdir', default="./csv", help="directory for saving outp
 parser.add_argument('--range', '-r', type=parseNumList, help="Specify a range of run numbers")
 parser.add_argument('--metrics', nargs='*', help="list which metrics to show")
 parser.add_argument('--config', action="store_true", help="show differing config options in models")
+parser.add_argument('--detail', '-d', action="store_true", help="Show model details")
+parser.add_argument('--tableformat', '-t', default="grid", help="Table format (for tabulate)")
 args = parser.parse_args()
 
 config_files = FNCConfig.get_all_filenames(results_dir=args.dir)
@@ -115,5 +118,19 @@ if args.csv:
         writer.writerow(headers)
         writer.writerows(table)
 
-print(tabulate(table, headers, tablefmt="grid"))
+print(tabulate(table, headers, tablefmt=args.tableformat))
+
+def show_conf(c):
+    print("=" * 80)
+    print(c.slug(), c.get('config_name', '---'))
+    print("=" * 80)
+    pprint({ k:v for k, v in c.__dict__.items() if k not in ['params', 'history', 'bound_slug']})
+
+    cheaders = ["metric"] + list(c.history.keys())
+    ctable = [ [k] + v for k, v in c.history.items()]
+    print(tabulate(ctable, cheaders, tablefmt=args.tableformat))
+
+if args.detail:
+    for c in configs:
+        show_conf(c)
     
