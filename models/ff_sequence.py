@@ -9,6 +9,7 @@ from keras.preprocessing import sequence
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 
+from utils.generate_data import collapse_stances
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
 from keras.utils import plot_model

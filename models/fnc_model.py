@@ -22,7 +22,7 @@ class FNCModel:
         """
         Maps raw headlines and articles to input ready for this model. It's cleaner to allow the model
         to be built without any data, but part of the model pipeline might depend on data. 
-        [[X_headline_train, X_article_train], [X_headline_val, X_val_article]] => input ready for model
+        [[X_train_headline, X_train_article], [X_val_headline, X_val_article]] => input ready for model
         """
         return X_train, y_train, X_val, y_val
 
@@ -46,9 +46,9 @@ class FNCModel:
 
     def train(self, X_train, y_train, X_val, y_val):
         "Combines all steps"
-        print("=" * 50)
-        print("TRAINING {}".format(self.config.slug()))
-        print("=" * 50)
+        print("=" * 80)
+        print("TRAINING {} ({})".format(self.config.slug(), self.config.get("config_name", "[no name]")))
+        print("=" * 80)
         X_train, y_train, X_val, y_val = self.preprocess(X_train, y_train, X_val, y_val)
         model = self.build_model()
         print(model.summary())
@@ -63,21 +63,21 @@ class FNCModel:
         ]
         
     def tokenize(self, X_train, X_val):
-        X_headline_train, X_article_train = X_train
-        X_headline_val, X_val_article = X_val
+        X_train_headline, X_train_article = X_train
+        X_val_headline, X_val_article = X_val
     
         tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
-        tokenizer.fit_on_texts(X_headline_train + X_article_train)
-        X_headline_train = tokenizer.texts_to_sequences(X_headline_train)
-        X_article_train = tokenizer.texts_to_sequences(X_article_train)
-        X_headline_val = tokenizer.texts_to_sequences(X_headline_val)
-        X_val_article = tokenizer.texts_to_sequences(X_article_val)
+        tokenizer.fit_on_texts(X_train_headline + X_train_article)
+        X_train_headline = tokenizer.texts_to_sequences(X_train_headline)
+        X_train_article = tokenizer.texts_to_sequences(X_train_article)
+        X_val_headline = tokenizer.texts_to_sequences(X_val_headline)
+        X_val_article = tokenizer.texts_to_sequences(X_val_article)
         if self.config.get('pad_sequences'):
-            X_headline_train = pad_sequences(X_headline_train, maxlen=self.config['headline_length'])
-            X_article_train = pad_sequences(X_article_train, maxlen=self.config['article_length'])
-            X_headline_val = pad_sequences(X_headline_val, maxlen=self.config['headline_length'])
-            X_val_article = pad_sequences(X_article_val, maxlen=self.config['article_length'])
-        return [[X_headline_train, X_article_train], [X_headline_val, X_val_article]]
+            X_train_headline = pad_sequences(X_train_headline, maxlen=self.config['headline_length'])
+            X_train_article = pad_sequences(X_train_article, maxlen=self.config['article_length'])
+            X_val_headline = pad_sequences(X_val_headline, maxlen=self.config['headline_length'])
+            X_val_article = pad_sequences(X_val_article, maxlen=self.config['article_length'])
+        return [[X_train_headline, X_train_article], [X_val_headline, X_val_article]]
 
 
         

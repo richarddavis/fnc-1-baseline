@@ -6,10 +6,12 @@ from keras.layers.core import Dropout
 from keras.layers.embeddings import Embedding
 from keras.models import Model
 
+from utils.generate_data import collapse_stances
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
 
 from models.fnc_model import FNCModel
+#from models.fnc_score_metric import fnc_score
 
 class FFConcatTwoLosses(FNCModel):
 
@@ -77,8 +79,6 @@ class FFConcatTwoLosses(FNCModel):
         return model
 
     def evaluate(self, model, X_val, y_val):
-        # This should probably actually be in an evaluate method
         pred_related, pred_stance = model.predict(X_val)
         report_score([LABELS[np.where(x==1)[0][0]] for x in y_val['stance_prediction']],
                 [LABELS[np.argmax(x)] for x in pred_stance])
-
