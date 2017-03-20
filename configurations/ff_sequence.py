@@ -10,9 +10,9 @@ ff_sequence = {
     "pad_sequences": False,
     "matrix_mode": 'freq',
     "hidden_layers": [       
-        (600, 'relu', 0.35),
-        (600, 'relu', 0.35),
-        (600, 'relu', 0.35)
+        (800, 'relu', 0.35),
+        (800, 'relu', 0.35),
+        (800, 'relu', 0.35)
     ],
     "compile": {
         'optimizer': 'nadam', 
