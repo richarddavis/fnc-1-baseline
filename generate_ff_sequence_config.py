@@ -15,6 +15,11 @@ if __name__ == '__main__':
     from configurations.ff_sequence import FF_Sequence_Config
     base = FF_Sequence_Config()
     generate_configs(base, {
-        "matrix_mode": ["freq"],
-        "related_prediction_percent":[0, 0.25, 0.5, 0.75, 1],
+        "matrix_mode": ["binary", "freq"],
+        "related_prediction_percent":[0, 0.25, 0.5, 0.75],
+        "vocabulary_dim": [1000, 3000, 5000],
+        "dense_text": [True, False],
+        "hidden_layers":[[(600, 'relu', 0.6)],
+                         [(600, 'relu', 0.6), (600, 'relu', 0.6)],
+                         [(600, 'relu', 0.6), (600, 'relu', 0.6), (600, 'relu', 0.6)]]
     })

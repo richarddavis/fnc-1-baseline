@@ -74,6 +74,11 @@ class FFSequence(FNCModel):
             dtype='float32',
             name='article_input',
         )
+
+        if self.config['dense_text'] == True:
+            headline_input = Dense(self.config['dense_dim'], activation='relu')(headline_input)
+            article_input = Dense(self.config['dense_dim'], activation='relu')(article_input)
+
         layer = concatenate([headline_input, article_input])
 
         for dim, activation, dropout in self.config['hidden_layers']:
