@@ -1,31 +1,46 @@
-ff_sequence = {
-    "model_module": 'ff_sequence',
-    "model_class": 'FFSequence',
-    "vocabulary_dim": 3000,
-    "pad_sequences": False,
-    "matrix_mode": 'binary',
-    "article_length": 500,
-    "headline_length": 70,
-    "article_embedding_dim": 200,
-    "headline_embedding_dim": 200,
-    "hidden_layers": [       
-        (600, 'relu', 0.6)
-    ],
-    "compile": {
-        'optimizer': 'nadam', 
-        'loss': {
-            'related_prediction': 'binary_crossentropy',
-            'stance_prediction': 'categorical_crossentropy'
-        },
-        'loss_weights': {
-            'related_prediction': 0.25,
-            'stance_prediction': 0.75
-        },
-        'metrics': ['accuracy']
-    },
-    "fit" : {
-        'epochs': 5,
-        'batch_size': 64,
-        'verbose': 1
-    },
-}
+from configurations.base_config import BaseConfig
+
+class FF_Sequence_Config(BaseConfig):
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.model_module = 'ff_sequence'
+        self.model_class = 'FFSequence'
+        self.vocabulary_dim = 3000
+        self.matrix_mode = 'binary'
+        self.hidden_layers = [(600, 'relu', 0.6)]
+        self.optimizer = 'nadam'
+        self.related_prediction = 'binary_crossentropy'
+        self.stance_prediction = 'categorical_crossentropy'
+        self.related_prediction_percent = 0
+        self.epochs = 4
+        self.batch_size = 64
+        self.verbose = 1
+
+    def get_config(self):
+        ff_sequence_config = {
+            "model_module": self.model_module,
+            "model_class": self.model_class,
+            "vocabulary_dim": self.vocabulary_dim,
+            "matrix_mode": self.matrix_mode,
+            "hidden_layers": self.hidden_layers,
+            "compile": {
+                'optimizer': self.optimizer,
+                'loss': {
+                    'related_prediction': self.related_prediction,
+                    'stance_prediction': self.stance_prediction,
+                },
+                'loss_weights': {
+                    'related_prediction': self.related_prediction_percent,
+                    'stance_prediction': 1 - self.related_prediction_percent,
+                },
+                'metrics': ['accuracy']
+            },
+            "fit" : {
+                'epochs': self.epochs,
+                'batch_size': self.batch_size,
+                'verbose': self.verbose,
+            },
+        }
+        return ff_sequence_config

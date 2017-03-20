@@ -1,4 +1,6 @@
-class FF_Sequence_Config():
+from configurations.base_config import BaseConfig
+
+class FF_Sequence_Config(BaseConfig):
     def __init__(self):
         self.reset()
 
@@ -42,12 +44,3 @@ class FF_Sequence_Config():
             },
         }
         return ff_sequence_config
-
-    def __getitem__(self, name):
-        return getattr(self, name)
-    def __setitem__(self, name, value):
-        return setattr(self, name, value)
-    def __delitem__(self, name):
-        return delattr(self, name)
-    def __contains__(self, name):
-        return hasattr(self, name)

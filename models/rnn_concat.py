@@ -62,18 +62,14 @@ class RNNConcat(FNCModel):
 
         headline_input = Input(shape=(self.config['headline_length'],), dtype='int32')
         body_input = Input(shape=(self.config['article_length'],), dtype='int32')
-        headline_branch = Embedding(
+        shared_embedding = Embedding(
                 input_dim=self.config['vocabulary_dim']+2,
                 output_dim=self.config['embedding_dim'],
-                input_length=self.config['headline_length'],
+                # input_length=self.config['headline_length'],
                 mask_zero=True
-        )(headline_input)
-        body_branch = Embedding(
-                input_dim=self.config['vocabulary_dim']+2,
-                output_dim=self.config['embedding_dim'],
-                input_length=self.config['article_length'],
-                mask_zero=True
-        )(body_input)
+        )
+        headline_branch = shared_embedding(headline_input)
+        body_branch = shared_embedding(body_input)
 
         merged = concatenate([headline_branch, body_branch], axis=1)
         merged_length = self.config['article_length'] + self.config['headline_length']
@@ -84,8 +80,6 @@ class RNNConcat(FNCModel):
         # merged = Dropout(0.2)(merged)
         out = Dense(4, activation='softmax')(merged)
         model = Model(inputs=[headline_input, body_input], output=out)
-
-
 
         # try using different optimizers and different optimizer configs
         model.compile(**self.config['compile'])
