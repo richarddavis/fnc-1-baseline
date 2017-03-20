@@ -13,6 +13,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.regularizers import l2
 from utils.dataset import DataSet
 from utils.generate_data import generate_data
+from utils.generate_data import collapse_stances
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
 from keras.utils import plot_model
@@ -22,15 +23,38 @@ class RNNConcat(FNCModel):
     def preprocess(self, X_train, y_train, X_val, y_val):
         [X_train_headline, X_train_article], [X_val_headline, X_val_article] = self.tokenize(X_train, X_val)
 
-        y_train = np_utils.to_categorical(y_train)
-        y_val = np_utils.to_categorical(y_val)
+        # y_train = np_utils.to_categorical(y_train)
+        # y_val = np_utils.to_categorical(y_val)
+        y_train_stance = np_utils.to_categorical(y_train)
+        y_train_related = np_utils.to_categorical(collapse_stances(y_train))
+        y_val_stance = np_utils.to_categorical(y_val)
+        y_val_related = np_utils.to_categorical(collapse_stances(y_val))
 
         return (
-            [X_train_headline, X_train_article],
-            y_train,
-            [X_val_headline, X_val_article],
-            y_val
+            {
+                'headline_input': X_train_headline,
+                'article_input': X_train_article,
+            },
+            {
+                'related_prediction': y_train_related,
+                'stance_prediction': y_train_stance,
+            },
+            {
+                'headline_input': X_val_headline,
+                'article_input': X_val_article,
+            },
+            {
+                'related_prediction': y_val_related,
+                'stance_prediction': y_val_stance,
+            }
         )
+
+        # return (
+        #     [X_train_headline, X_train_article],
+        #     y_train,
+        #     [X_val_headline, X_val_article],
+        #     y_val
+        # )
 
     def tokenize(self, X_train, X_val):
         # X_train and X_val are each lists of [headline, article]
@@ -60,9 +84,8 @@ class RNNConcat(FNCModel):
         return [[X_headline_train, X_article_train], [X_headline_val, X_article_val]]
 
     def build_model(self):
-
-        headline_input = Input(shape=(self.config['headline_length'],), dtype='int32')
-        body_input = Input(shape=(self.config['article_length'],), dtype='int32')
+        headline_input = Input(shape=(self.config['headline_length'],), dtype='int32', name='headline_input')
+        article_input = Input(shape=(self.config['article_length'],), dtype='int32', name='article_input')
         shared_embedding = Embedding(
                 input_dim=self.config['vocabulary_dim']+2,
                 output_dim=self.config['embedding_dim'],
@@ -70,7 +93,7 @@ class RNNConcat(FNCModel):
                 mask_zero=True
         )
         headline_branch = shared_embedding(headline_input)
-        body_branch = shared_embedding(body_input)
+        body_branch = shared_embedding(article_input)
 
         merged = concatenate([headline_branch, body_branch], axis=1)
 
@@ -88,13 +111,22 @@ class RNNConcat(FNCModel):
         else:
             merged = LSTM(output_dim=self.config['rnn_output_size'])(merged)
 
-
-
         # merged = Dense(400, activation='relu', init='glorot_normal')(merged)
         # merged = Dropout(0.2)(merged)
-        out = Dense(4, activation='softmax')(merged)
-        model = Model(inputs=[headline_input, body_input], output=out)
+
+        # out = Dense(4, activation='softmax')(merged)
+        related_prediction = Dense(2, activation='softmax', name='related_prediction')(merged)
+        stance_prediction = Dense(4, activation='softmax', name='stance_prediction')(merged)
+
+        # model = Model(inputs=[headline_input, article_input], output=out)
+        model = Model(inputs=[headline_input, article_input], outputs=[related_prediction, stance_prediction])
 
         # try using different optimizers and different optimizer configs
         model.compile(**self.config['compile'])
         return model
+
+    def evaluate(self, model, X_val, y_val):
+        # This should probably actually be in an evaluate method
+        pred_related, pred_stance = model.predict(X_val)
+        report_score([LABELS[np.where(x==1)[0][0]] for x in y_val['stance_prediction']],
+                [LABELS[np.argmax(x)] for x in pred_stance])

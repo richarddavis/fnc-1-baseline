@@ -14,8 +14,11 @@ class RNNConcatConfig(BaseConfig):
         self.embedding_dim = 32
         self.rnn_output_size = 32
         self.bidirectional = True
-        self.rnn_depth = 2
+        self.rnn_depth = 1
         self.optimizer = "nadam"
+        self.related_prediction = 'binary_crossentropy'
+        self.stance_prediction = 'categorical_crossentropy'
+        self.related_prediction_percent = 0
         self.epochs = 10
         self.batch_size = 128
         self.verbose = 1
@@ -34,7 +37,14 @@ class RNNConcatConfig(BaseConfig):
             "rnn_depth": self.rnn_depth,
             "compile": {
                 'optimizer': self.optimizer,
-                'loss': 'categorical_crossentropy',
+                'loss': {
+                    'related_prediction': self.related_prediction,
+                    'stance_prediction': self.stance_prediction,
+                },
+                'loss_weights': {
+                    'related_prediction': self.related_prediction_percent,
+                    'stance_prediction': 1 - self.related_prediction_percent,
+                },
                 'metrics': ['accuracy']
             },
             "fit" : {
