@@ -22,7 +22,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 VOCAB_SIZE = 3000
 max_seq_len = 200
-epochs = 14
+epochs = 12
 
 # Load the dataset using the utility provided by the FNC
 d = DataSet()
