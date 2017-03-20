@@ -19,7 +19,6 @@ from keras.utils import np_utils
 from keras.utils import plot_model
 from sklearn.metrics import classification_report, confusion_matrix
 
-
 from models.fnc_model import FNCModel
 
 class FFSequence(FNCModel):
@@ -27,7 +26,7 @@ class FFSequence(FNCModel):
     def preprocess(self, X_train, y_train, X_test, y_test):
         X_train_headline, X_train_article = X_train
         X_test_headline, X_test_article = X_test
-    
+
         tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
         tokenizer.fit_on_texts(X_train_headline + X_train_article)
         X_train_headline = tokenizer.texts_to_sequences(X_train_headline)
@@ -70,8 +69,8 @@ class FFSequence(FNCModel):
 
     def build_model(self):
         headline_input = Input(
-            shape=(self.config['vocabulary_dim'],), 
-            dtype='float32', 
+            shape=(self.config['vocabulary_dim'],),
+            dtype='float32',
             name='headline_input'
         )
         article_input = Input(
@@ -98,4 +97,3 @@ class FFSequence(FNCModel):
         pred_related, pred_stance = model.predict(X_test)
         report_score([LABELS[np.where(x==1)[0][0]] for x in y_test['stance_prediction']],
                 [LABELS[np.argmax(x)] for x in pred_stance])
-
