@@ -14,9 +14,31 @@ def generate_configs(base_config, params_to_change, results_dir='./results'):
 if __name__ == '__main__': 
     from configurations.ff_sequence import ff_sequence as base
     generate_configs(base, {
-        "vocabulary_dim": [1000, 3000, 5000],
-        "matrix_mode": ["binary", "freq"],
         "hidden_layers": [
-            [ (600, 'relu', 0.6), (600, 'relu', 0.6)]
+          [       
+              (400, 'relu', 0.35),
+              (400, 'relu', 0.35),
+              (400, 'relu', 0.35)
+          ],
+          [       
+              (600, 'relu', 0.35),
+              (600, 'relu', 0.35),
+              (600, 'relu', 0.35)
+          ],
+          [       
+              (800, 'relu', 0.35),
+              (800, 'relu', 0.35),
+              (800, 'relu', 0.35)
+          ],
+          [       
+              (1000, 'relu', 0.35),
+              (1000, 'relu', 0.35),
+              (1000, 'relu', 0.35)
+          ],
+          [       
+              (1200, 'relu', 0.35),
+              (1200, 'relu', 0.35),
+              (1200, 'relu', 0.35)
+          ]
         ]
     })

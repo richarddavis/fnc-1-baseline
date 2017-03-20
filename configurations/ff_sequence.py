@@ -1,15 +1,18 @@
 ff_sequence = {
-    "model_module": 'ff_sequence',
-    "model_class": 'FFSequence',
-    "vocabulary_dim": 3000,
-    "pad_sequences": False,
-    "matrix_mode": 'binary',
     "article_length": 500,
     "headline_length": 70,
     "article_embedding_dim": 200,
     "headline_embedding_dim": 200,
+
+    "model_module": 'ff_sequence',
+    "model_class": 'FFSequence',
+    "vocabulary_dim": 10000,
+    "pad_sequences": False,
+    "matrix_mode": 'freq',
     "hidden_layers": [       
-        (600, 'relu', 0.6)
+        (600, 'relu', 0.35),
+        (600, 'relu', 0.35),
+        (600, 'relu', 0.35)
     ],
     "compile": {
         'optimizer': 'nadam', 
@@ -24,7 +27,7 @@ ff_sequence = {
         'metrics': ['accuracy']
     },
     "fit" : {
-        'epochs': 5,
+        'epochs': 15,
         'batch_size': 64,
         'verbose': 1
     },

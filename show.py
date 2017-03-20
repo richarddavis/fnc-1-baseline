@@ -91,7 +91,7 @@ for c, m in sorted(cm, key=lambda cm_: cm_[1].get(args.sort_metric, -1), reverse
         for dk in diff_keys:
             row.append(fc.get(dk))
     else:
-        row.append(c.get('config_name', "---")[:24])
+        row.append(c.get('config_name', "---")[:36])
     for metric in metrics:
         row.append(m.get(metric))
     table.append(row)
