@@ -86,7 +86,7 @@ class FNCConfig:
             return max((score, i) for i, score in enumerate(scores))[1]
     
     def best_epoch_metrics(self, metric="val_loss"):
-        be = self.best_epoch()
+        be = self.best_epoch(metric)
         if be:
             history = (getattr(self, 'history') or {})
             return {k: vals[be] for k, vals in history.items()}
