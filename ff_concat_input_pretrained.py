@@ -89,7 +89,7 @@ embedding_layer = Embedding(len(word_index) + 1,
                             EMBEDDING_DIM,
                             weights=[embedding_matrix],
                             input_length=MAX_SEQUENCE_LENGTH,
-                            trainable=False)
+                            trainable=True)
 
 
 headline_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
