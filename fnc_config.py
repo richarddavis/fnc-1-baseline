@@ -43,16 +43,6 @@ class FNCConfig:
             config.bound_slug = os.path.splitext(os.path.basename(filename))[0]
             return config
 
-    @classmethod
-    def show_all(cls, metric="val_loss", results_dir="./results"):
-        # TODO also show other desirable metrics
-        print("Showing results sorted by {}".format(metric))
-        by_metric = lambda c: (c.best_epoch_metrics(metric=metric) or {}).get(metric, 0)
-        for conf in sorted(cls.get_trained(results_dir), key=by_metric):
-            metrics = (conf.best_epoch_metrics(metric=metric) or {})
-            print("{}\t{}\t{}".format(conf.slug(), conf.get('config_name'), 
-                    metrics.get(metric, 0)))
-      
     def __init__(self, params, results_dir="./results"):
         self.results_dir = results_dir
         self.__dict__.update(params)
@@ -79,6 +69,9 @@ class FNCConfig:
 
     def is_trained(self):
         return os.path.exists(self.weights_file())
+
+    def run_number(self):
+        return int(re.match(".*-(\d+)-", self.slug()).group(1))
 
     def best_epoch(self, metric="val_loss"):
         scores = (getattr(self, 'history') or {}).get(metric, [])
