@@ -6,11 +6,6 @@ from keras.layers.core import Dropout
 from keras.layers.embeddings import Embedding
 from keras.models import Model
 
-from keras.regularizers import l2
-
-from utils.dataset import DataSet
-from utils.generate_data import generate_data, collapse_stances
-from utils.generate_test_splits import generate_hold_out_split, read_ids
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
 
@@ -18,13 +13,13 @@ from models.fnc_model import FNCModel
 
 class FFConcatTwoLosses(FNCModel):
 
-    def preprocess(self, X_train, y_train, X_test, y_test):
-        [X_train_headline, X_train_article], [X_test_headline, X_test_article] = self.tokenize(X_train, X_test)
+    def preprocess(self, X_train, y_train, X_val, y_val):
+        [X_train_headline, X_train_article], [X_val_headline, X_val_article] = self.tokenize(X_train, X_val)
 
         y_train_stance = np_utils.to_categorical(y_train)
         y_train_related = np_utils.to_categorical(collapse_stances(y_train))
-        y_test_stance = np_utils.to_categorical(y_test)
-        y_test_related = np_utils.to_categorical(collapse_stances(y_test))
+        y_val_stance = np_utils.to_categorical(y_val)
+        y_val_related = np_utils.to_categorical(collapse_stances(y_val))
 
         return (
             {
@@ -36,12 +31,12 @@ class FFConcatTwoLosses(FNCModel):
                 'stance_prediction': y_train_stance,
             },
             {
-                'headline_input': X_test_headline,
-                'article_input': X_test_article,
+                'headline_input': X_val_headline,
+                'article_input': X_val_article,
             },
             {
-                'related_prediction': y_test_related,
-                'stance_prediction': y_test_stance,
+                'related_prediction': y_val_related,
+                'stance_prediction': y_val_stance,
             }
         )
 
@@ -81,9 +76,9 @@ class FFConcatTwoLosses(FNCModel):
         model.compile(**self.config['compile'])
         return model
 
-    def evaluate(self, model, X_test, y_test):
+    def evaluate(self, model, X_val, y_val):
         # This should probably actually be in an evaluate method
-        pred_related, pred_stance = model.predict(X_test)
-        report_score([LABELS[np.where(x==1)[0][0]] for x in y_test['stance_prediction']],
+        pred_related, pred_stance = model.predict(X_val)
+        report_score([LABELS[np.where(x==1)[0][0]] for x in y_val['stance_prediction']],
                 [LABELS[np.argmax(x)] for x in pred_stance])
 

@@ -1,35 +1,31 @@
 from models.fnc_model import FNCModel
 
 import numpy as np
-from keras.datasets import imdb
-from keras.models import Sequential, Model
+from keras.models import Model
 from keras.layers import Input, Dense, Activation, Embedding, Flatten, LSTM, GRU, concatenate
 from keras.layers.core import Dropout
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from keras.regularizers import l2
-from utils.dataset import DataSet
-from utils.generate_data import generate_data
-from utils.generate_test_splits import generate_hold_out_split, read_ids
+
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
 from keras.utils import plot_model
 
 class LSTM(FNCModel):
 
-    def preprocess(self, X_train, y_train, X_test, y_test):
-        [X_train_headline, X_train_article], [X_test_headline, X_test_article] = self.tokenize(X_train, X_test)
+    def preprocess(self, X_train, y_train, X_val, y_val):
+        [X_train_headline, X_train_article], [X_val_headline, X_val_article] = self.tokenize(X_train, X_val)
 
         y_train = np_utils.to_categorical(y_train)
-        y_test = np_utils.to_categorical(y_test)
+        y_val = np_utils.to_categorical(y_val)
 
         return (
             [X_train_headline, X_train_article],
             y_train,
-            [X_test_headline, X_test_article],
-            y_test
+            [X_val_headline, X_val_article],
+            y_val
         )
 
     def build_model(self):
