@@ -15,7 +15,6 @@ from keras.utils import np_utils
 from keras.utils import plot_model
 from sklearn.metrics import classification_report, confusion_matrix
 
-
 from models.fnc_model import FNCModel
 
 class FFSequence(FNCModel):
@@ -23,7 +22,7 @@ class FFSequence(FNCModel):
     def preprocess(self, X_train, y_train, X_val, y_val):
         X_train_headline, X_train_article = X_train
         X_val_headline, X_val_article = X_val
-    
+
         tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
         tokenizer.fit_on_texts(X_train_headline + X_train_article)
         X_train_headline = tokenizer.texts_to_sequences(X_train_headline)
@@ -66,8 +65,8 @@ class FFSequence(FNCModel):
 
     def build_model(self):
         headline_input = Input(
-            shape=(self.config['vocabulary_dim'],), 
-            dtype='float32', 
+            shape=(self.config['vocabulary_dim'],),
+            dtype='float32',
             name='headline_input'
         )
         article_input = Input(
@@ -75,6 +74,11 @@ class FFSequence(FNCModel):
             dtype='float32',
             name='article_input',
         )
+
+        if self.config['dense_text'] == True:
+            headline_input = Dense(self.config['dense_dim'], activation='relu')(headline_input)
+            article_input = Dense(self.config['dense_dim'], activation='relu')(article_input)
+
         layer = concatenate([headline_input, article_input])
 
         for dim, activation, dropout in self.config['hidden_layers']:
@@ -94,4 +98,3 @@ class FFSequence(FNCModel):
         pred_related, pred_stance = model.predict(X_val)
         report_score([LABELS[np.where(x==1)[0][0]] for x in y_val['stance_prediction']],
                 [LABELS[np.argmax(x)] for x in pred_stance])
-
