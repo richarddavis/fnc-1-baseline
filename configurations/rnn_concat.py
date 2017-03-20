@@ -6,7 +6,6 @@ rnn_concat = {
     "article_length": 1000,
     "headline_length": 100,
     "embedding_dim": 20,
-    "seq2seq_hidden_dim":10,
     "compile": {
         'optimizer': 'nadam',
         'loss': 'categorical_crossentropy',

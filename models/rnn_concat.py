@@ -43,6 +43,8 @@ class RNNConcat(FNCModel):
         X_headline_val = [" ".join([start_headline_token, headline]) for headline in X_headline_val]
         X_article_val = [" ".join([start_article_token, article]) for article in X_article_val]
 
+        # Add check that start_headline_token and start_article_token make it
+
         tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
         tokenizer.fit_on_texts(X_headline_train + X_article_train + X_headline_val + X_article_val)
         X_headline_train = tokenizer.texts_to_sequences(X_headline_train)
