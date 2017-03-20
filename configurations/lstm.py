@@ -7,6 +7,7 @@ lstm = {
     "headline_length": 100,
     "embedding_dim": 20,
     "headline_embedding_dim": 200,
+    "share_gru": False,
     "compile": {
         'optimizer': 'nadam', 
         'loss': 'categorical_crossentropy',

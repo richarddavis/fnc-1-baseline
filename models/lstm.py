@@ -43,8 +43,13 @@ class LSTM(FNCModel):
                 input_length=self.config['article_length'], 
                 mask_zero=True
         )(body_input)
-        headline_branch = GRU(output_dim=128, go_backwards=True)(headline_branch)
-        body_branch = GRU(output_dim=128, go_backwards=True)(body_branch)
+        if self.config.get('share_gru'):
+            gru = GRU(units=128, go_backwards=True)
+            headline_branch = gru(headline_branch)
+            body_branch = gru(body_branch)
+        else:
+            headline_branch = GRU(units=128, go_backwards=True)(headline_branch)
+            body_branch = GRU(units=128, go_backwards=True)(body_branch)
 
         merged = concatenate([headline_branch, body_branch])
         merged = Dense(400, activation='relu', init='glorot_normal')(merged)
