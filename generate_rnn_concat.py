@@ -15,7 +15,9 @@ if __name__ == '__main__':
     from configurations.rnn_concat import RNNConcatConfig
     base = RNNConcatConfig()
     generate_configs(base, {
-        "vocabulary_dim": [3000],
+        # "vocabulary_dim": [3000],
+        "bidirectional": [True, False],
+        "depth": [1, 2],
         # "matrix_mode": ["binary", "freq"],
         # "hidden_layers": [
         #     [ (600, 'relu', 0.6), (600, 'relu', 0.6)]

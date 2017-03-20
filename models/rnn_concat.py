@@ -6,6 +6,7 @@ from keras.models import Sequential, Model
 from keras.layers import Input, Dense, Activation, Embedding, Flatten, LSTM, GRU, concatenate
 from keras.layers.core import Dropout
 from keras.layers.embeddings import Embedding
+from keras.layers.wrappers import Bidirectional
 from keras.preprocessing import sequence
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
@@ -72,9 +73,22 @@ class RNNConcat(FNCModel):
         body_branch = shared_embedding(body_input)
 
         merged = concatenate([headline_branch, body_branch], axis=1)
-        merged_length = self.config['article_length'] + self.config['headline_length']
 
-        merged = GRU(output_dim=128, go_backwards=False)(merged)
+        if self.config['rnn_depth'] > 1:
+            for i in range(self.config['rnn_depth'] - 1):
+                if self.config['bidirectional'] == True:
+                    merged = Bidirectional(LSTM(output_dim=self.config['rnn_output_size'], \
+                                                return_sequences=True))(merged)
+                else:
+                    merged = LSTM(output_dim=self.config['rnn_output_size'], \
+                                  return_sequences=True)(merged)
+
+        if self.config['bidirectional'] == True:
+            merged = Bidirectional(LSTM(output_dim=self.config['rnn_output_size']))(merged)
+        else:
+            merged = LSTM(output_dim=self.config['rnn_output_size'])(merged)
+
+
 
         # merged = Dense(400, activation='relu', init='glorot_normal')(merged)
         # merged = Dropout(0.2)(merged)
