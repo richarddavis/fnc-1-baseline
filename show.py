@@ -2,10 +2,14 @@ from fnc_config import FNCConfig
 from tabulate import tabulate
 import re
 import csv
+import os
 
 import argparse
 
 def parseNumList(string):
+    return sum((_parse(s) for s in string.split(',')), [])
+
+def _parse(string):
     m = re.match(r'(\d+)(?:-(\d+))?$', string)
     # ^ (or use .split('-'). anyway you like.)
     if not m:
@@ -24,6 +28,7 @@ parser.add_argument('--sort_metric', '-s', default="val_stance_prediction_acc",
 parser.add_argument('--best_epoch_metric', '-e', default="val_stance_prediction_acc", 
         help="Metric by which to sort trials")
 parser.add_argument('--output', '-o', help="CSV output file")
+parser.add_argument('--outdir', default="./csv", help="directory for saving output")
 parser.add_argument('--range', '-r', type=parseNumList, help="Specify a range of run numbers")
 parser.add_argument('--metrics', nargs='*', help="list which metrics to show")
 parser.add_argument('--config', action="store_true", help="show differing config options in models")
@@ -92,15 +97,16 @@ def default_out():
     if args.range:
         out += "_{}_to_{}".format(args.range[0], args.range[-1])
     if args.metrics:
-        out += "_".join([summarize(m) for m in args.metrics])
+        out += "_" + "_".join([summarize(m) for m in args.metrics])
     if args.config:
         out += "_config"
     out += ".csv"
     return out
 
 if args.csv:
-    print("Writing to {}".format(args.output or default_out()))
-    with open(args.output or default_out(), 'w') as outfile:
+    path = os.path.join(args.outdir, args.output or default_out())
+    print("Writing to {}".format(path))
+    with open(path, 'w') as outfile:
         writer = csv.writer(outfile)
         writer.writerow(headers)
         writer.writerows(table)
