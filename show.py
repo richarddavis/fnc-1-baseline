@@ -44,10 +44,14 @@ configs = [conf for conf in configs if conf.is_trained()]
 
 cm = [(c, c.best_epoch_metrics(args.best_epoch_metric) or {}) for c in configs]
 
-metrics = args.metrics or sorted(list(set(sum([list(m.keys()) for c, m in cm], []))))
-
 def summarize(name):
     return "".join([token[0] for token in name.split("_")])
+
+all_metrics = sorted(list(set(sum([list(m.keys()) for c, m in cm], []))))
+if args.metrics:
+    metrics = [name for name, summ in zip(all_metrics, (summarize(m) for m in all_metrics)) if summ in args.metrics]
+else:
+    metrics = all_metrics
 
 def flatten(obj, prefix="", omit=None):
     "returns period-separated paths to all keys in object"
