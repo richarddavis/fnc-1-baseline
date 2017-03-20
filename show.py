@@ -25,11 +25,14 @@ cm = [(c, c.best_epoch_metrics(args.best_epoch_metric) or {}) for c in configs]
 
 metrics = sorted(list(set(sum([list(m.keys()) for c, m in cm], []))))
 
-headers = ["trial", "description"] + metrics
+def summarize(name):
+    return "".join([token[0] for token in name.split("_")])
+
+headers = ["trial", "description"] + [summarize(m) for m in metrics]
 table = []
 
-for c, m in sorted(cm, key=lambda cm_: cm_[1].get(args.sort_metric, -1)):
-    row = [c.slug(), c.get('config_name', "---")[:10]]
+for c, m in sorted(cm, key=lambda cm_: cm_[1].get(args.sort_metric, -1), reverse=True):
+    row = [c.slug(), c.get('config_name', "---")[:24]]
     for metric in metrics:
         row.append(m.get(metric))
     table.append(row)
