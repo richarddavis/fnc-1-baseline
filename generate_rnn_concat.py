@@ -17,8 +17,4 @@ if __name__ == '__main__':
     generate_configs(base, {
         "depth": [2, 3],
         "article_length": [100, 300, 500, 800],
-        # "matrix_mode": ["binary", "freq"],
-        # "hidden_layers": [
-        #     [ (600, 'relu', 0.6), (600, 'relu', 0.6)]
-        # ]
     })

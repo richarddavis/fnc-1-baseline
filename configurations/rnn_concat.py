@@ -7,9 +7,9 @@ class RNNConcatConfig(BaseConfig):
     def reset(self):
         self.model_module = "rnn_concat"
         self.model_class = "RNNConcat"
-        self.vocabulary_dim = 3000
+        self.vocabulary_dim = 5000
         self.pad_sequences = True
-        self.article_length = 800
+        self.article_length = 200
         self.headline_length = 100
         self.embedding_dim = 32
         self.rnn_output_size = 32
@@ -18,9 +18,9 @@ class RNNConcatConfig(BaseConfig):
         self.optimizer = "nadam"
         self.related_prediction = 'binary_crossentropy'
         self.stance_prediction = 'categorical_crossentropy'
-        self.related_prediction_percent = 0
+        self.related_prediction_percent = 0.25
         self.epochs = 10
-        self.batch_size = 128
+        self.batch_size = 64
         self.verbose = 1
 
     def get_config(self):
