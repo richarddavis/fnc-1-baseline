@@ -125,8 +125,9 @@ def show_conf(c):
     print(c.slug(), c.get('config_name', '---'))
     print("=" * 80)
     pprint({ k:v for k, v in c.__dict__.items() if k not in ['params', 'history', 'bound_slug']})
-
-    cheaders = ["metric"] + list(c.history.keys())
+    
+    
+    cheaders = ["metric"] + [i for i, x in enumerate(c.history.items())]
     ctable = [ [k] + v for k, v in c.history.items()]
     print(tabulate(ctable, cheaders, tablefmt=args.tableformat))
 
