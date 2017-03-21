@@ -16,7 +16,7 @@ class FF_Sequence_Config(BaseConfig):
         self.related_prediction = 'binary_crossentropy'
         self.stance_prediction = 'categorical_crossentropy'
         self.related_prediction_percent = 0.25
-        self.epochs = 20
+        self.epochs = 15
         self.batch_size = 64
         self.verbose = 1
 
