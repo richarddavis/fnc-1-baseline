@@ -102,7 +102,6 @@ class RNNConcat(FNCModel):
         merged = concatenate([body_branch, headline_branch], axis=1)
 
         if self.config['rnn_depth'] > 1:
-            print ("GOING FOR IT!")
             for i in range(self.config['rnn_depth'] - 1):
                 if self.config['bidirectional'] == True:
                     merged = Bidirectional(LSTM(output_dim=self.config['rnn_output_size'], \
