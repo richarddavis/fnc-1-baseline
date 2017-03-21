@@ -43,6 +43,9 @@ for conf in configs:
         [X_val_headline, X_val_article],
         y_val
     )
-    results = model.evaluate([X_test_headline, X_test_article], y_test, batch_size=64)
+    X_test = [X_test_headline, X_test_article]
+    X_test, y_test, _, _ = m.preprocess(X_test, y_test, X_test, y_test)
+    results = model.evaluate(X_test, y_test, batch_size=64)
     models.append(model)
+    print("\nRESULTS")
     print(tabulate([results], model.metrics_names))
