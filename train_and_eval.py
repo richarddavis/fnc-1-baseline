@@ -33,6 +33,8 @@ configs = [FNCConfig.load_file(cf, results_dir=args.dir) for cf in config_files]
 
 configs = sorted(configs, key=lambda c: c.run_number())
 
+models = []
+
 for conf in configs:
     m = conf.get_model()
     model, history = m.train(
@@ -42,4 +44,5 @@ for conf in configs:
         y_val
     )
     results = model.evaluate([X_test_headline, X_test_article], y_test, batch_size=64)
+    models.append(model)
     print(tabulate([results], model.metrics_names))
