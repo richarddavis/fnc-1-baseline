@@ -15,6 +15,5 @@ if __name__ == '__main__':
     from configurations.rnn_concat import RNNConcatConfig
     base = RNNConcatConfig()
     generate_configs(base, {
-        "depth": [2, 3],
-        "article_length": [100, 300, 500, 800],
+        "article_length": [500, 800],
     })

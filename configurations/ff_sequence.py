@@ -7,11 +7,11 @@ class FF_Sequence_Config(BaseConfig):
     def reset(self):
         self.model_module = 'ff_sequence'
         self.model_class = 'FFSequence'
-        self.vocabulary_dim = 3000
+        self.vocabulary_dim = 5000
         self.matrix_mode = 'freq'
         self.dense_text = False
         self.dense_dim = 150
-        self.hidden_layers = [(600, 'relu', 0.6)]
+        self.hidden_layers = [(600, 'relu', 0.5), (600, 'relu', 0.5), (600, 'relu', 0.5)]
         self.optimizer = 'nadam'
         self.related_prediction = 'binary_crossentropy'
         self.stance_prediction = 'categorical_crossentropy'
