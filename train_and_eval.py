@@ -38,10 +38,10 @@ models = []
 for conf in configs:
     m = conf.get_model()
     model, history = m.train(
-        [X_train_headline + X_val_headline, X_train_article + X_val_article], 
+        [X_train_headline + X_val_headline, X_train_article + X_val_article],
         y_train + y_val,
-        [X_val_headline, X_val_article],
-        y_val
+        [X_test_headline, X_test_article],
+        y_test
     )
     X_test = [X_test_headline, X_test_article]
     X_test, y_test, _, _ = m.preprocess(X_test, y_test, X_test, y_test)

@@ -128,7 +128,6 @@ class RNNConcat(FNCModel):
         # try using different optimizers and different optimizer configs
         model.compile(**self.config['compile'])
 
-        print(model.summary())
         plot_model(model, to_file='rnn_concat.png', show_shapes=True)
 
         return model

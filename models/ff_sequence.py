@@ -75,7 +75,7 @@ class FFSequence(FNCModel):
             name='article_input',
         )
 
-        if self.config['dense_text'] == True:
+        if self.config.get('dense_text') == True:
             headline_dense = Dense(self.config['dense_dim'], activation='relu')(headline_input)
             article_dense = Dense(self.config['dense_dim'], activation='relu')(article_input)
             layer = concatenate([headline_dense, article_dense])
@@ -93,7 +93,6 @@ class FFSequence(FNCModel):
         model = Model(inputs=[headline_input, article_input], outputs=[related_prediction, stance_prediction])
         model.compile(**self.config['compile'])
 
-        print(model.summary())
         plot_model(model, to_file='ff_sequence.png', show_shapes=True)
 
         return model

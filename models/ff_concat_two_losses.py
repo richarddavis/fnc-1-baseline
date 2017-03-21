@@ -78,7 +78,6 @@ class FFConcatTwoLosses(FNCModel):
         model = Model(inputs=[headline_input, article_input], outputs=[related_prediction, stance_prediction])
         model.compile(**self.config['compile'])
 
-        print(model.summary())
         plot_model(model, to_file='ff_concat_two_losses.png', show_shapes=True)
 
         return model

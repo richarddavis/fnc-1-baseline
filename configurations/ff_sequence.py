@@ -11,12 +11,12 @@ class FF_Sequence_Config(BaseConfig):
         self.matrix_mode = 'freq'
         self.dense_text = False
         self.dense_dim = 150
-        self.hidden_layers = [(600, 'relu', 0.5), (600, 'relu', 0.5), (600, 'relu', 0.5)]
+        self.hidden_layers = [(800, 'relu', 0.35), (800, 'relu', 0.35), (800, 'relu', 0.35)]
         self.optimizer = 'nadam'
         self.related_prediction = 'binary_crossentropy'
         self.stance_prediction = 'categorical_crossentropy'
         self.related_prediction_percent = 0.25
-        self.epochs = 15
+        self.epochs = 10
         self.batch_size = 64
         self.verbose = 1
 
