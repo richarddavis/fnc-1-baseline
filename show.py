@@ -128,7 +128,7 @@ def show_conf(c):
     
     
     cheaders = ["metric"] + [i for i, x in enumerate(c.history.items())]
-    ctable = [ [k] + v for k, v in c.history.items()]
+    ctable = [ [k] + v for k, v in c.history.items() if k in metrics]
     print(tabulate(ctable, cheaders, tablefmt=args.tableformat))
 
 if args.detail:
