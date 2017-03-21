@@ -13,7 +13,7 @@ class RNNConcatConfig(BaseConfig):
         self.headline_length = 100
         self.embedding_dim = 32
         self.rnn_output_size = 32
-        self.bidirectional = True
+        self.bidirectional = False
         self.rnn_depth = 1
         self.optimizer = "nadam"
         self.related_prediction = 'binary_crossentropy'

@@ -92,6 +92,10 @@ class FFSequence(FNCModel):
 
         model = Model(inputs=[headline_input, article_input], outputs=[related_prediction, stance_prediction])
         model.compile(**self.config['compile'])
+
+        print(model.summary())
+        plot_model(model, to_file='ff_sequence.png', show_shapes=True)
+
         return model
 
     def evaluate(self, model, X_val, y_val):

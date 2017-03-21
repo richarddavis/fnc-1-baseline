@@ -62,11 +62,11 @@ class RNNConcat(FNCModel):
         X_headline_val, X_article_val = X_val
 
         start_headline_token = '<HEADLINE>'
-        start_article_token = '<ARTICLE>'
+        # start_article_token = '<ARTICLE>'
         X_headline_train = [" ".join([start_headline_token, headline]) for headline in X_headline_train]
-        X_article_train = [" ".join([start_article_token, article]) for article in X_article_train]
+        # X_article_train = [" ".join([start_article_token, article]) for article in X_article_train]
         X_headline_val = [" ".join([start_headline_token, headline]) for headline in X_headline_val]
-        X_article_val = [" ".join([start_article_token, article]) for article in X_article_val]
+        # X_article_val = [" ".join([start_article_token, article]) for article in X_article_val]
 
         # Add check that start_headline_token and start_article_token make it
 
@@ -77,10 +77,14 @@ class RNNConcat(FNCModel):
         X_headline_val = tokenizer.texts_to_sequences(X_headline_val)
         X_article_val = tokenizer.texts_to_sequences(X_article_val)
         if self.config.get('pad_sequences'):
-            X_headline_train = pad_sequences(X_headline_train, maxlen=self.config['headline_length'])
-            X_article_train = pad_sequences(X_article_train, maxlen=self.config['article_length'])
-            X_headline_val = pad_sequences(X_headline_val, maxlen=self.config['headline_length'])
-            X_article_val = pad_sequences(X_article_val, maxlen=self.config['article_length'])
+            X_headline_train = pad_sequences(X_headline_train, maxlen=self.config['headline_length'], padding='post', truncating='post')
+            X_article_train = pad_sequences(X_article_train, maxlen=self.config['article_length'], padding='post', truncating='post')
+            X_headline_val = pad_sequences(X_headline_val, maxlen=self.config['headline_length'], padding='post', truncating='post')
+            X_article_val = pad_sequences(X_article_val, maxlen=self.config['article_length'], padding='post', truncating='post')
+
+        # Reverse order of articles
+        X_article_train = np.fliplr(X_article_train)
+        X_article_val = np.fliplr(X_article_val)
         return [[X_headline_train, X_article_train], [X_headline_val, X_article_val]]
 
     def build_model(self):
@@ -95,7 +99,7 @@ class RNNConcat(FNCModel):
         headline_branch = shared_embedding(headline_input)
         body_branch = shared_embedding(article_input)
 
-        merged = concatenate([headline_branch, body_branch], axis=1)
+        merged = concatenate([body_branch, headline_branch], axis=1)
 
         if self.config['rnn_depth'] > 1:
             for i in range(self.config['rnn_depth'] - 1):
@@ -123,6 +127,10 @@ class RNNConcat(FNCModel):
 
         # try using different optimizers and different optimizer configs
         model.compile(**self.config['compile'])
+
+        print(model.summary())
+        plot_model(model, to_file='rnn_concat.png', show_shapes=True)
+
         return model
 
     def evaluate(self, model, X_val, y_val):

@@ -10,6 +10,7 @@ from utils.generate_data import collapse_stances
 from utils.score import report_score, LABELS
 from keras.utils import np_utils
 
+from keras.utils import plot_model
 from models.fnc_model import FNCModel
 #from models.fnc_score_metric import fnc_score
 
@@ -44,16 +45,16 @@ class FFConcatTwoLosses(FNCModel):
 
     def build_model(self):
         headline_input = Input(
-            shape=(self.config['headline_length'],), 
-            dtype='int32', 
+            shape=(self.config['headline_length'],),
+            dtype='int32',
             name='headline_input'
         )
         headline_word_vectors = Embedding(
-            input_dim=self.config['vocabulary_dim'], 
+            input_dim=self.config['vocabulary_dim'],
             input_length=self.config['headline_length'],
             output_dim=self.config['headline_embedding_dim'],
             name='headline_embedding'
-        )(headline_input) 
+        )(headline_input)
         headline_word_vectors = Flatten()(headline_word_vectors)
         article_input = Input(
             shape=(self.config['article_length'],),
@@ -61,11 +62,11 @@ class FFConcatTwoLosses(FNCModel):
             name='article_input',
         )
         article_word_vectors = Embedding(
-            input_dim=self.config['vocabulary_dim'], 
+            input_dim=self.config['vocabulary_dim'],
             input_length=self.config['article_length'],
             output_dim=self.config['article_embedding_dim'],
             name='article_embedding'
-        )(article_input) 
+        )(article_input)
         article_word_vectors = Flatten()(article_word_vectors)
         layer = word_vectors = concatenate([headline_word_vectors, article_word_vectors])
         for dim, activation, dropout in self.config['hidden_layers']:
@@ -76,6 +77,10 @@ class FFConcatTwoLosses(FNCModel):
         stance_prediction = Dense(4, activation='softmax', name='stance_prediction')(layer)
         model = Model(inputs=[headline_input, article_input], outputs=[related_prediction, stance_prediction])
         model.compile(**self.config['compile'])
+
+        print(model.summary())
+        plot_model(model, to_file='ff_concat_two_losses.png', show_shapes=True)
+
         return model
 
     def evaluate(self, model, X_val, y_val):
