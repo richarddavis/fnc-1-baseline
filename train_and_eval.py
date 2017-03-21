@@ -42,4 +42,4 @@ for conf in configs:
         y_val
     )
     results = model.evaluate([X_test_headline, X_test_article], y_test, batch_size=64)
-    print(tabulate(results, model.metrics_names))
+    print(tabulate([results], model.metrics_names))
