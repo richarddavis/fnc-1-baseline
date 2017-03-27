@@ -17,6 +17,7 @@ class FNCModel:
 
     def __init__(self, config):
         self.config = config
+        self.tokenizer = None
 
     def preprocess(self, X_train, y_train, X_val, y_val):
         """
@@ -25,6 +26,12 @@ class FNCModel:
         [[X_train_headline, X_train_article], [X_val_headline, X_val_article]] => input ready for model
         """
         return X_train, y_train, X_val, y_val
+
+    def get_tokenizer(self):
+        return self.tokenizer
+
+    def set_tokenizer(self, t):
+        self.tokenizer = t
 
     def build_model(self):
         "Builds and returns a compiled model."
@@ -66,7 +73,10 @@ class FNCModel:
         X_train_headline, X_train_article = X_train
         X_val_headline, X_val_article = X_val
 
-        tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
+        if self.get_tokenizer() is None:
+            tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
+            self.set_tokenizer(tokenizer)
+        tokenizer = self.get_tokenizer()
         tokenizer.fit_on_texts(X_train_headline + X_train_article)
         X_train_headline = tokenizer.texts_to_sequences(X_train_headline)
         X_train_article = tokenizer.texts_to_sequences(X_train_article)

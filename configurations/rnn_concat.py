@@ -12,14 +12,14 @@ class RNNConcatConfig(BaseConfig):
         self.article_length = 200
         self.headline_length = 100
         self.embedding_dim = 32
-        self.rnn_output_size = 32
-        self.bidirectional = False
-        self.rnn_depth = 1
+        self.rnn_output_size = 128
+        self.bidirectional = True
+        self.rnn_depth = 2
         self.optimizer = "nadam"
         self.related_prediction = 'binary_crossentropy'
         self.stance_prediction = 'categorical_crossentropy'
         self.related_prediction_percent = 0.25
-        self.epochs = 10
+        self.epochs = 20
         self.batch_size = 64
         self.verbose = 1
 

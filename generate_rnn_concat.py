@@ -1,6 +1,6 @@
 from fnc_config import FNCConfig
 
-def generate_configs(base_config, params_to_change, results_dir='./results'):
+def generate_configs(base_config, params_to_change, results_dir='./rnn_results'):
     "Generates configurations to perform a hyperparameter grid search one dimension at a time."
     for param, values in params_to_change.items():
         for value in values:
@@ -15,5 +15,5 @@ if __name__ == '__main__':
     from configurations.rnn_concat import RNNConcatConfig
     base = RNNConcatConfig()
     generate_configs(base, {
-        "article_length": [500, 800],
+        "rnn_output_size": [50, 100],
     })

@@ -70,7 +70,10 @@ class RNNConcat(FNCModel):
 
         # Add check that start_headline_token and start_article_token make it
 
-        tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
+        if self.get_tokenizer() is None:
+            tokenizer = Tokenizer(num_words=self.config['vocabulary_dim'])
+            self.set_tokenizer(tokenizer)
+        tokenizer = self.get_tokenizer()
         tokenizer.fit_on_texts(X_headline_train + X_article_train + X_headline_val + X_article_val)
         X_headline_train = tokenizer.texts_to_sequences(X_headline_train)
         X_article_train = tokenizer.texts_to_sequences(X_article_train)
